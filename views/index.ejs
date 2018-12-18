@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>产品需求文档</title>
+</head>
+<style>
+    .container{
+        width:1000px;
+        height:auto;
+        margin: 0 auto
+    }
+    .list{
+        margin:10px;
+    }
+    .list a {
+        color: #0090d8
+    }
+    .list a:hover {
+        color: #d43030;
+    }
+    .active{
+        color: #d43030!important;
+    }
+    .notice{
+        color:#d43030
+    }
+    .item {
+        cursor: pointer;
+    }
+    .bold {
+        font-weight: bold;
+    }
+    .project {
+        list-style-type: circle
+    }
+    a {
+        text-decoration: none;
+    }
+</style>
+<body>
+<div class="container" id="app">
+    <h2>产品需求文档</h2>
+    <hr>
+    <ul v-for="treeData in treeDatas.list" :class="{project: treeData.isProject }">
+        <item class="item" :model="treeData"></item>
+    </ul>
+</div>
+</body>
+
+</html>
+<script src="/javascripts/jquery-3.0.0.min.js"></script>
+<script src="/javascripts/vue.js"></script>
+
+<script type="text/x-template" id="item-template">
+    <li>
+      <div v-if="isFolder" :class="{bold: isFolder}" @click="toggle">
+        {{ model.name }}
+        <span v-if="isFolder">[{{ open ? '-' : '+' }}]</span>
+      </div>
+      <div v-if="!isFolder" class="project">
+        <a v-if="!isEmtpyDir" :href="'/product/' + model.file + '/start.html'" target="_blank">{{ model.name }}</a>
+        <span v-if="isEmtpyDir">{{model.name}}</span>
+      </div>
+      <ul v-show="open" v-if="isFolder">
+        <item
+          class="item"
+          v-for="(model, index) in model.list"
+          :key="index"
+          :model="model">
+        </item>
+      </ul>
+    </li>
+</script>
+
+
+
+<script>
+    Vue.component('item', {
+        template: '#item-template',
+        props: {
+            model: Object
+        },
+        data: function () {
+            return {
+                open: false
+            }
+        },
+        computed: {
+            isFolder: function () {
+                return this.model.list && this.model.list.length > 0 && !this.model.isProject
+            },
+            isEmtpyDir: function () {
+                return this.model.isDirectory && !this.model.isProject
+            }
+        },
+        methods: {
+            toggle: function () {
+                if (this.isFolder) {
+                    this.open = !this.open
+                } else {
+                    location.href = "/product/" + this.model.name + "/start.html"
+                }
+            },
+        }
+    })
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            treeDatas: JSON.parse('<%- JSON.stringify(datas) %>')
+        }
+    })
+</script>
